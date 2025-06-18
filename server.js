@@ -19,6 +19,8 @@ const io = new Server(server, {
     },
 });
 
+app.set("io", io);
+
 const corsOptions = {
   origin: ["https://fermivo.ro", "https://www.fermivo.ro"], 
   methods: "GET,POST,PUT,DELETE",
