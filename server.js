@@ -19,10 +19,15 @@ const io = new Server(server, {
     },
 });
 
-app.use(cors({
-  origin: ["https://fermivo-frontend.vercel.app"],
-  credentials: true
-}));
+const corsOptions = {
+  origin: "https://fermivo-frontend.vercel.app", // domeniul tău Vercel (stabil, nu preview)
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: "Content-Type,Authorization",
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 
 // ✅ Conexiune la MongoDB
