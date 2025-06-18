@@ -140,10 +140,10 @@ app.get("/", (req, res) => {
 
 
 // ✅ Pornim serverul
-server.listen(PORT, () => {
-    console.log(`🚀 Serverul rulează pe http://localhost:${PORT}`);
-    // runScraper(); // Rulăm scraping-ul imediat la pornirea serverului
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Serverul rulează pe http://0.0.0.0:${PORT}`);
 });
+
 
 
 const cheerio = require('cheerio');
