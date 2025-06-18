@@ -23,7 +23,7 @@ app.set("io", io);
 
 const corsOptions = {
   origin: ["https://fermivo.ro", "https://www.fermivo.ro"], 
-  methods: "GET,POST,PUT,DELETE",
+  methods: "GET,POST,PUT,DELETE,PATCH",
   allowedHeaders: "Content-Type,Authorization",
   credentials: true,
 };
