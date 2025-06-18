@@ -20,7 +20,7 @@ const io = new Server(server, {
 });
 
 const corsOptions = {
-  origin: "https://fermivo-frontend.vercel.app", // domeniul tău Vercel (stabil, nu preview)
+  origin: ["https://fermivo.ro", "https://www.fermivo.ro"], 
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: "Content-Type,Authorization",
   credentials: true,
