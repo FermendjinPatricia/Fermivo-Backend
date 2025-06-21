@@ -260,7 +260,7 @@ router.post("/:id/rate", verifyToken, async (req, res) => {
 // Adaugă anunț la favorite
 router.post("/favorites/:anuntId", verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     const anuntId = req.params.anuntId;
 
     if (!user.favoriteAnunturi.includes(anuntId)) {
@@ -277,7 +277,7 @@ router.post("/favorites/:anuntId", verifyToken, async (req, res) => {
 // Elimină anunț din favorite
 router.delete("/favorites/:anuntId", verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     user.favoriteAnunturi = user.favoriteAnunturi.filter(
       id => id.toString() !== req.params.anuntId
     );
@@ -292,7 +292,7 @@ router.delete("/favorites/:anuntId", verifyToken, async (req, res) => {
 // Afișează toate favoritele
 router.get("/favorites", verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate("favoriteAnunturi");
+    const user = await User.findById(req.user._id).populate("favoriteAnunturi");
     res.status(200).json(user.favoriteAnunturi);
   } catch (err) {
     res.status(500).json({ message: "Eroare la încărcarea favoritelor." });
