@@ -133,6 +133,17 @@ router.post(
   }
 );
 
+
+// Afișează toate favoritele
+router.get("/favorites", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate("favoriteAnunturi");
+    res.status(200).json(user.favoriteAnunturi);
+  } catch (err) {
+    res.status(500).json({ message: "Eroare la încărcarea favoritelor." });
+  }
+});
+
 // Get user by id
 router.get("/:id", async (req, res) => {
   try {
@@ -286,16 +297,6 @@ router.delete("/favorites/:anuntId", verifyToken, async (req, res) => {
     res.status(200).json({ message: "Eliminat din favorite." });
   } catch (err) {
     res.status(500).json({ message: "Eroare la eliminare din favorite." });
-  }
-});
-
-// Afișează toate favoritele
-router.get("/favorites", verifyToken, async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id).populate("favoriteAnunturi");
-    res.status(200).json(user.favoriteAnunturi);
-  } catch (err) {
-    res.status(500).json({ message: "Eroare la încărcarea favoritelor." });
   }
 });
 
