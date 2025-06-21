@@ -56,6 +56,12 @@ const userSchema = new mongoose.Schema(
       default: "buyer",
       required: true,
     },
+    favoriteAnunturi: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Anunt",
+      },
+    ],
     isPremium: {
       type: Boolean,
       default: false,

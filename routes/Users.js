@@ -257,4 +257,46 @@ router.post("/:id/rate", verifyToken, async (req, res) => {
   }
 });
 
+// Adaugă anunț la favorite
+router.post("/favorites/:anuntId", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const anuntId = req.params.anuntId;
+
+    if (!user.favoriteAnunturi.includes(anuntId)) {
+      user.favoriteAnunturi.push(anuntId);
+      await user.save();
+    }
+
+    res.status(200).json({ message: "Adăugat la favorite." });
+  } catch (err) {
+    res.status(500).json({ message: "Eroare la adăugare în favorite." });
+  }
+});
+
+// Elimină anunț din favorite
+router.delete("/favorites/:anuntId", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    user.favoriteAnunturi = user.favoriteAnunturi.filter(
+      id => id.toString() !== req.params.anuntId
+    );
+    await user.save();
+
+    res.status(200).json({ message: "Eliminat din favorite." });
+  } catch (err) {
+    res.status(500).json({ message: "Eroare la eliminare din favorite." });
+  }
+});
+
+// Afișează toate favoritele
+router.get("/favorites", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate("favoriteAnunturi");
+    res.status(200).json(user.favoriteAnunturi);
+  } catch (err) {
+    res.status(500).json({ message: "Eroare la încărcarea favoritelor." });
+  }
+});
+
 module.exports = router;
