@@ -12,7 +12,7 @@ router.post("/create-checkout-session", async (req, res) => {
       payment_method_types: ["card"],
       line_items: [
         {
-          price: "price_1RVqCARoKj519u0dZdGRjT64", // ID-ul de preț real
+          price: "price_1RcbjjRs76TfoPmYTuwHjfNv",
           quantity: 1,
         },
       ],
