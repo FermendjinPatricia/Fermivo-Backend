@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "Codul unic de identificare este obligatoriu."],
       unique: true,
       minlength: [7, "Codul unic trebuie să conțină cel puțin 7 caractere."],
-      maxlength: [20, "Codul unic nu poate depăși 20 de caractere."],
+      maxlength: [11, "Codul unic nu poate depăși 11 de caractere."],
     },
     adresa: {
       type: String,
