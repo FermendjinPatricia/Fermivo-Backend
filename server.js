@@ -153,46 +153,37 @@ server.listen(PORT, '0.0.0.0', () => {
 
 
 
-const cheerio = require('cheerio');
-const axios = require('axios');
-const fs = require('fs');
+const cheerio = require('cheerio'); // Importăm cheerio pentru a face scraping HTML
+const axios = require('axios'); // Importăm axios pentru a face cereri HTTP
+const fs = require('fs'); // Importăm fs pentru a scrie fișiere
 
-async function scrapeGrauPanificatie() {
-    try {
-        const url = 'https://brm.ro/cotatii-cereale/';
-        const { data } = await axios.get(url);
-        const $ = cheerio.load(data);
-
-        let results = [];
-
-        $('#tablepress-16 tbody tr').each((index, element) => {
-            const columns = $(element).find('td');
-            if (columns.length < 3) return;
-        
-            const zona = $(columns[0]).text().trim();
-            const pret = $(columns[1]).text().trim().replace(',', '.');
-            const variatie = $(columns[2]).text().trim().replace(',', '.');
-        
-            if (!isNaN(parseFloat(pret)) || pret === "-") {
-                results.push({
+async function scrapeGrauPanificatie() { // Funcția pentru scraping-ul grâului de panificație
+    try { 
+        const url = 'https://brm.ro/cotatii-cereale/'; // URL-ul paginii de unde extragem datele
+        const { data } = await axios.get(url); // Facem o cerere GET pentru a obține conținutul paginii
+        const $ = cheerio.load(data); // Încărcăm conținutul paginii în cheerio pentru a putea folosi selecții jQuery-like
+        let results = []; // Array pentru a stoca rezultatele extrase
+        $('#tablepress-16 tbody tr').each((index, element) => { // Iterăm prin fiecare rând din tabelul cu datele despre grâu
+            const columns = $(element).find('td'); // Selectăm toate celulele din rând
+            if (columns.length < 3) return; // Ne asigurăm că avem cel puțin 3 coloane (zona, preț, variație)
+            const zona = $(columns[0]).text().trim(); // Extragem zona
+            const pret = $(columns[1]).text().trim().replace(',', '.'); // Extragem prețul și înlocuim virgula cu punctul pentru a putea converti rezultatul la număr
+            const variatie = $(columns[2]).text().trim().replace(',', '.'); // Extragem variația procentuală și înlocuim virgula cu punctul
+            if (!isNaN(parseFloat(pret)) || pret === "-") { // Verificăm dacă prețul este un număr valid sau dacă este un simbol -
+                results.push({ // Adăugăm rezultatul în array
                     zona,
                     pret_lei_tona: parseFloat(pret),
                     variatie_procente: parseFloat(variatie)
                 });
-        
-                if (results.length === 4) return false; // 🛑 oprește .each()
+                if (results.length === 4) return false; // Oprim iterarea după ce am extras primele 4 rezultate
             }
         });
-
-        fs.writeFileSync('grau_panificatie.json', JSON.stringify({ grau_panificatie: results }, null, 2));
-        //console.log('📂 Datele au fost salvate în grau_panificatie.json');
-        //console.log('✅ Rezultate:', results);
-    } catch (error) {
-        console.error('❌ Eroare la scraping:', error);
+        fs.writeFileSync('grau_panificatie.json', JSON.stringify({ grau_panificatie: results }, null, 2)); // Salvăm rezultatele într-un fișier JSON
+    } catch (error) { // Gestionăm erorile care pot apărea în timpul scraping-ului
+        console.error('❌ Eroare la scraping:', error); // Afișăm eroarea în caz de eșec
     }
 }
-
-scrapeGrauPanificatie();
+scrapeGrauPanificatie(); // Apelăm funcția pentru a începe scraping-ul grâului de panificație
 
 
 async function scrapePorumb() {
@@ -443,29 +434,26 @@ async function scrapeRapita() {
 scrapeRapita();
 
 const INTERVAL_MINUTE = 5; // Intervalul de actualizare în minute
-
-setInterval(() => {
-    console.log("🔄 Actualizare automată a datelor...");
-    scrapeGrauPanificatie();
-    scrapePorumb();
-    scrapeGrauFurajer();
-    scrapeOrz();
-    scrapeOrzFurajer();
-    scrapeFloareaSoarelui();
-    scrapeRapita();
-}, INTERVAL_MINUTE * 60 * 1000);
-
-app.get("/scrape/brm", async (req, res) => {
-    try {
-        const grau_panificatie = JSON.parse(fs.readFileSync('grau_panificatie.json'));
-        const porumb = JSON.parse(fs.readFileSync('porumb.json'));
-        const grau_furajer = JSON.parse(fs.readFileSync('grau_furajer.json'));
-        const orz = JSON.parse(fs.readFileSync('orz.json'));
-        const orz_furajer = JSON.parse(fs.readFileSync('orz_furajer.json'));
-        const floarea_soarelui = JSON.parse(fs.readFileSync('floarea_soarelui.json'));
-        const rapita = JSON.parse(fs.readFileSync('rapita.json'));
-
-        res.json({
+setInterval(() => { // Funcția care va fi apelată la fiecare interval
+    console.log("Actualizare automată a datelor..."); // Afișare în consolă pentru a indica că se face actualizarea
+    scrapeGrauPanificatie(); // Apelăm funcția de scraping pentru grâu de panificație
+    scrapePorumb(); // Apelăm funcția de scraping pentru porumb
+    scrapeGrauFurajer(); // Apelăm funcția de scraping pentru grâu furajer
+    scrapeOrz(); // Apelăm funcția de scraping pentru orz
+    scrapeOrzFurajer(); // Apelăm funcția de scraping pentru orz furajer
+    scrapeFloareaSoarelui(); // Apelăm funcția de scraping pentru floarea soarelui
+    scrapeRapita(); // Apelăm funcția de scraping pentru rapiță
+}, INTERVAL_MINUTE * 60 * 1000); // Setăm intervalul de actualizare în milisecunde
+app.get("/scrape/brm", async (req, res) => { // Endpoint pentru a declanșa manual scraping-ul
+    try { 
+        const grau_panificatie = JSON.parse(fs.readFileSync('grau_panificatie.json')); // Citim fișierul JSON cu datele despre grâu de panificație
+        const porumb = JSON.parse(fs.readFileSync('porumb.json')); // Citim fișierul JSON cu datele despre porumb
+        const grau_furajer = JSON.parse(fs.readFileSync('grau_furajer.json')); // Citim fișierul JSON cu datele despre grâu furajer
+        const orz = JSON.parse(fs.readFileSync('orz.json')); // Citim fișierul JSON cu datele despre orz
+        const orz_furajer = JSON.parse(fs.readFileSync('orz_furajer.json')); // Citim fișierul JSON cu datele despre orz furajer
+        const floarea_soarelui = JSON.parse(fs.readFileSync('floarea_soarelui.json')); // Citim fișierul JSON cu datele despre floarea soarelui
+        const rapita = JSON.parse(fs.readFileSync('rapita.json')); // Citim fișierul JSON cu datele despre rapiță
+        res.json({ // Răspundem cu datele extrase
             success: true,
             grau_panificatie: grau_panificatie.grau_panificatie,
             porumb: porumb.porumb,
@@ -475,36 +463,31 @@ app.get("/scrape/brm", async (req, res) => {
             floarea_soarelui: floarea_soarelui.orz,
             rapita: rapita.orz,
         });
-    } catch (error) {
-        console.error("❌ Eroare la citirea fișierelor JSON:", error);
+    } catch (error) { // Gestionăm erorile care pot apărea la citirea fișierelor JSON
+        console.error("Eroare la citirea fișierelor JSON:", error); 
         res.status(500).json({ success: false, message: "Eroare la preluarea datelor" });
     }
 });
 
 
 
-const cron = require("node-cron");
-const { exec } = require("child_process");
-
-// Rulează scrape.js o dată pe saptamana, luni la ora 6 dimineața
-cron.schedule("0 6 * * 1", () => {
-    exec("node data/scrape.js", (error, stdout, stderr) => {
-        if (error) {
-          console.error(`❌ Eroare la scraper: ${error.message}`);
-          return;
-        }
-        console.log(`✅ Scraper OK:\n${stdout}`);
-      
-        // După scraper, rulez predictorul
-        exec("python data/brm_predictor.py", (error2, stdout2, stderr2) => {
-          if (error2) {
-            console.error(`❌ Eroare la predictor: ${error2.message}`);
-            return;
+const cron = require("node-cron"); // Importăm modulul cron pentru a programa sarcini
+const { exec } = require("child_process"); // Importăm exec pentru a rula comenzi shell
+cron.schedule("0 6 * * 1", () => { // Programăm sarcina să ruleze în fiecare luni la ora 6:00
+    exec("node data/scrape.js", (error, stdout, stderr) => { // Executăm scriptul de scraping
+        if (error) { // Gestionăm erorile care pot apărea la execuția scriptului
+          console.error(`Eroare la scraper: ${error.message}`); // Afișăm mesajul de eroare în consolă
+          return; // Oprim execuția dacă a apărut o eroare
+        } 
+        console.log(`Scraper OK:\n${stdout}`); // Afișăm mesajul de succes în consolă
+        exec("python data/predictor.py", (error2, stdout2, stderr2) => { // Executăm scriptul predictor
+          if (error2) { // Gestionăm erorile care pot apărea la execuția scriptului predictor
+            console.error(`Eroare la predictor: ${error2.message}`); // Afișăm mesajul de eroare în consolă
+            return; // Oprim execuția dacă a apărut o eroare
           }
-          console.log(`✅ Predictor OK:\n${stdout2}`);
+          console.log(`Predictor OK:\n${stdout2}`); // Afișăm mesajul de succes în consolă
         });
-      });
-      
+      });     
 });
 
 const predictiiRoutes = require('./routes/predictii');

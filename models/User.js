@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["buyer", "seller", "admin"], // doar aceste valori sunt acceptate
+      enum: ["buyer", "seller", "admin"], 
       default: "buyer",
       required: true,
     },
@@ -68,11 +68,11 @@ const userSchema = new mongoose.Schema(
     },
     profilePicture: {
       type: String,
-      default: "/uploads/default_profile.png", // <- poza default (pui acolo imaginea generică)
+      default: "/uploads/default_profile.png", 
     },
     reviews: [
       {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // cine a dat review
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         rating: { type: Number, required: true },
       },
     ],

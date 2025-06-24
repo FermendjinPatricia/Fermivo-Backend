@@ -61,31 +61,27 @@ router.post("/register", async (req, res) => {
 });
 
 // Login
-router.post("/login", async (req, res) => {
-  try {
-    const { email, parola } = req.body;
-
-    const utilizator = await User.findOne({ email });
-    if (!utilizator) {
+router.post("/login", async (req, res) => { // Router pentru autentificare
+  try { 
+    const { email, parola } = req.body; // Extrage email și parola din corpul cererii
+    const utilizator = await User.findOne({ email }); // Caută utilizatorul după email
+    if (!utilizator) { // Dacă utilizatorul nu există, returnează eroare
       return res.status(400).json({ message: "Email sau parolă incorectă." });
     }
-
-    const parolaCorecta = await bcrypt.compare(parola, utilizator.parola);
-    if (!parolaCorecta) {
+    const parolaCorecta = await bcrypt.compare(parola, utilizator.parola); // Compară parola introdusă cu cea stocată
+    if (!parolaCorecta) { // Dacă parola nu este corectă, returnează eroare
       return res.status(400).json({ message: "Email sau parolă incorectă." });
     }
-
-    const token = jwt.sign(
+    const token = jwt.sign( // Creează un token JWT
       {
-        _id: utilizator._id,
-        email: utilizator.email,
-        role: utilizator.role,
+        _id: utilizator._id, // ID-ul utilizatorului
+        email: utilizator.email, // Email-ul utilizatorului
+        role: utilizator.role, // Rolul utilizatorului
       },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      process.env.JWT_SECRET, // Cheia pentru semnarea token-ului
+      { expiresIn: "1h" } // Setează expirarea token-ului la 1 oră
     );
-
-    res.status(200).json({
+    res.status(200).json({ // Răspunsul de succes
       message: "Autentificare reușită!",
       token,
       utilizator: {
@@ -95,7 +91,7 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Eroare la autentificare.", error });
+    res.status(500).json({ message: "Eroare la autentificare.", error }); // Răspunsul de eroare în caz de excepție
   }
 });
 

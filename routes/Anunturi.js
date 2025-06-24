@@ -25,17 +25,14 @@ async function getCoordsFromLocalitate(localitate) {
 
 
 // ✅ POST /api/anunturi - Adaugă anunț
-router.post("/", verifyToken, async (req, res) => {
-  try {
-    const { produs, pret_lei_tona,moneda, judet, descriere, localitate } = req.body;
-
-    if (!produs || !pret_lei_tona || !judet || !descriere || !localitate) {
-      return res.status(400).json({ message: "Toate câmpurile sunt obligatorii." });
+router.post("/", verifyToken, async (req, res) => { // Router pentru adăugarea anunțului
+  try { 
+    const { produs, pret_lei_tona,moneda, judet, descriere, localitate } = req.body; // Obține datele din corpul cererii
+    if (!produs || !pret_lei_tona || !judet || !descriere || !localitate) { // Verifică dacă toate câmpurile sunt completate
+      return res.status(400).json({ message: "Toate câmpurile sunt obligatorii." }); // Răspunde cu eroare dacă lipsesc câmpuri
     }
-
-    const coords = await getCoordsFromLocalitate(localitate);
-
-    const anuntNou = new Anunt({
+    const coords = await getCoordsFromLocalitate(localitate); // Obține coordonatele pentru localitate
+    const anuntNou = new Anunt({ // Creează un nou anunț
       produs,
       pret_lei_tona,
       moneda: moneda || "lei", // default la lei
@@ -46,11 +43,10 @@ router.post("/", verifyToken, async (req, res) => {
       lng: coords.lng,
       userId: req.user._id,
     });
-
-    const savedAd = await anuntNou.save();
-    res.status(201).json({ success: true, ad: savedAd });
-  } catch (error) {
-    console.error("❌ Eroare la salvarea anunțului:", error);
+    const savedAd = await anuntNou.save(); // Salvează anunțul în baza de date
+    res.status(201).json({ success: true, ad: savedAd }); // Răspunde cu anunțul salvat
+  } catch (error) { // Gestionează erorile
+    console.error("❌ Eroare la salvarea anunțului:", error); 
     res.status(500).json({ success: false, error: "Eroare server" });
   }
 });
